@@ -1,75 +1,115 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import StatCard from "@/components/StatCard";
+import { jobs } from "@/lib/applications";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useState } from "react";
+import { FlatList, Image, RefreshControl, SafeAreaView, Text, View } from "react-native";
+// import { SafeAreaView } from "react-native-safe-area-context"
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+export default function Home() {
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = async () => {
+        setRefreshing(true)
+        setRefreshing(false)
+    }
+
+    const getGreeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return "Good Morning"
+        if (hour < 18) return "Good Afternoon"
+        return "Good Evening"
+    }
+
+
+
+    return (
+        <SafeAreaView className="flex-1 bg-gray-50">
+            <FlatList
+                ListHeaderComponent={() => (
+                    <>
+                        <View className="bg-blue-600 px-6 pt-10 pb-20">
+                            <View className="flex-row items-center justify-between">
+                                <View className="flex-1">
+                                    <Text className="text-blue-100 text-lg">{getGreeting()}</Text>
+                                    <Text className="text-white text-2xl font-bold">{"Rajesh Murmu"}</Text>
+                                </View>
+                                <View className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center">
+                                    <Image
+                                        source={{ uri: `https://avatar.iran.liara.run/username?username=Rajesh+Murmu` }}
+                                        className='w-full h-full rounded-full'
+                                    />
+                                </View>
+                            </View>
+                        </View>
+
+                        {/* Stats Cards */}
+                        <View className="px-6 -mt-6 mb-6">
+                            <View className="flex-row mb-4">
+                                <StatCard title="Applied" value={6} icon={"briefcase"} color="bg-blue-500" />
+                                <StatCard title="Interviews" value={6} icon={"calendar"} color="bg-orange-500" />
+                            </View>
+                            <View className="flex-row">
+                                <StatCard title="Offers" value={6} icon={"check"} color="bg-green-500" />
+                                <StatCard title="Rejected" value={0} icon={"bug"} color="bg-red-500" />
+                            </View>
+                        </View>
+
+                        {/* Recent Activity */}
+                        <View className="px-6">
+                            <Text className="text-xl font-bold text-gray-900">Recent Activity</Text>
+
+                        </View>
+                    </>
+                )}
+                data={jobs.slice(0, 10)}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <View className="px-6 my-1">
+                        <View className="flex-row items-center py-4 border-b border-gray-100 last:border-b-0 px-2 bg-white rounded-lg">
+                            <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-3">
+                                <FontAwesome name="briefcase" color="#1e40af" size={20} />
+                            </View>
+                            <View className="flex-1">
+                                <Text className="font-semibold text-gray-900">{item.position}</Text>
+                                <Text className="text-gray-600 text-sm">{item.company}</Text>
+                            </View>
+                            <View
+                                className={`px-2 py-1 rounded-full ${item?.status.toLowerCase() === "applied"
+                                    ? "bg-blue-100"
+                                    : item?.status.toLowerCase() === "interview"
+                                        ? "bg-orange-100"
+                                        : item?.status.toLowerCase() === "offer"
+                                            ? "bg-green-100"
+                                            : "bg-red-100"
+                                    }`}
+                            >
+                                <Text
+                                    className={`text-xs font-semibold ${item?.status.toLowerCase() === "applied"
+                                        ? "text-blue-600"
+                                        : item?.status.toLowerCase() === "interview"
+                                            ? "text-orange-600"
+                                            : item?.status.toLowerCase() === "offer"
+                                                ? "text-green-600"
+                                                : "text-red-600"
+                                        }`}
+                                >
+                                    {item?.status.charAt(0).toUpperCase() + item?.status.slice(1)}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                )}
+                contentContainerClassName="pb-16"
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                ListEmptyComponent={() => (
+                    <Text className="text-gray-500 text-center py-8">
+                        No jobs tracked yet. Add your first job application!
+                    </Text>
+                )}
+
+            />
+
+
+        </SafeAreaView>
+    )
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "job-tracker",
-    "slug": "job-tracker",
+    "name": "Job Tracker",
+    "slug": "JobTracker",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/my_icon.png",
     "scheme": "jobtracker",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.rajeshmurmu.JobTracker"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "194db006-ce55-4b6b-83fb-b348fe4484a5"
+      }
     }
   }
 }
