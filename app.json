@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rajeshmurmu.JobTracker"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,7 +43,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "194db006-ce55-4b6b-83fb-b348fe4484a5"
+        "projectId": "29d4c018-27f4-45f4-9767-4a03c8392ef3"
       }
     }
   }

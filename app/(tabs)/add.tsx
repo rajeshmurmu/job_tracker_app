@@ -25,7 +25,6 @@ export default function Add() {
         handleSubmit,
         formState: { errors },
         setValue,
-        watch,
         getValues
     } = useForm<JobFormData>({
         defaultValues: {

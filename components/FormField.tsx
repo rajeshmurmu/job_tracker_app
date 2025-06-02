@@ -5,6 +5,7 @@ import { Image, KeyboardTypeOptions, Text, TextInput, TouchableOpacity, View } f
 
 interface FProps {
     title: string,
+    name: string,
     otherStyles?: string,
     keyboardType?: KeyboardTypeOptions
     placeholder: string
@@ -12,17 +13,17 @@ interface FProps {
 
 }
 
-export default function FormField({ title, placeholder, otherStyles, keyboardType, control }: FProps) {
+export default function FormField({ title, name, placeholder, otherStyles, keyboardType, control }: FProps) {
     const [showPassword, setShowPassword] = useState(false)
     return (
         <View className={`my-2 ${otherStyles}`}>
             <Text className='text-base text-black font-medium pl-2'>{title}</Text>
             <View
-                className='w-full h-16 px-4 bg-slate-100 border-2 border-gray-200 rounded-2xl focus:border-secondary items-center flex-row'
+                className='w-full px-4 bg-slatee-100 border-2 border-gray-300 rounded-2xl focus:border-secondary items-center flex-row '
             >
                 <Controller
                     control={control}
-                    name={title}
+                    name={name}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <>
                             <TextInput
@@ -35,7 +36,7 @@ export default function FormField({ title, placeholder, otherStyles, keyboardTyp
                                 keyboardType={keyboardType || "default"}
                                 secureTextEntry={title === "Password" && !showPassword}
                             />
-                            {title === 'Password' && (
+                            {title === 'Password' || name === 'password' && (
                                 <TouchableOpacity
                                     onPress={() => setShowPassword(!showPassword)}
                                 >

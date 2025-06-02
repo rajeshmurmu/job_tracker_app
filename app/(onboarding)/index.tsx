@@ -9,12 +9,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 export default function OnboardingScreen() {
-  const onboardingCompleted = useUserStore((state) => state.onboardingCompleted)
+  const { onboardingCompleted, isLoggedin, setOnboardingCompleted } = useUserStore()
 
-  if (onboardingCompleted) {
+  if (onboardingCompleted && isLoggedin) {
     return <Redirect href="/(tabs)" />
   }
 
+  if (onboardingCompleted && !isLoggedin) {
+    return <Redirect href="/sign-in" />
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -58,7 +61,12 @@ export default function OnboardingScreen() {
           </View>
         </View>
 
-        <TouchableOpacity onPress={() => router.push("/sign-up")} className="bg-blue-600 w-full py-4 rounded-xl shadow-md">
+        <TouchableOpacity
+          onPress={() => {
+            router.push("/sign-up")
+            setOnboardingCompleted(true)
+          }}
+          className="bg-blue-600 w-full py-4 rounded-xl shadow-md">
           <Text className="text-white text-lg font-semibold text-center">Get Started</Text>
         </TouchableOpacity>
       </View>

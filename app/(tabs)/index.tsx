@@ -1,12 +1,15 @@
 import StatCard from "@/components/StatCard";
 import { jobs } from "@/lib/applications";
+import { useUserStore } from "@/store/store";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Link } from "expo-router";
 import { useState } from "react";
 import { FlatList, Image, RefreshControl, SafeAreaView, Text, View } from "react-native";
 // import { SafeAreaView } from "react-native-safe-area-context"
 
 
 export default function Home() {
+    const { user } = useUserStore()
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = async () => {
         setRefreshing(true)
@@ -31,14 +34,16 @@ export default function Home() {
                             <View className="flex-row items-center justify-between">
                                 <View className="flex-1">
                                     <Text className="text-blue-100 text-lg">{getGreeting()}</Text>
-                                    <Text className="text-white text-2xl font-bold">{"Rajesh Murmu"}</Text>
+                                    <Text className="text-white text-2xl font-bold">{user?.name}</Text>
                                 </View>
-                                <View className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center">
-                                    <Image
-                                        source={{ uri: `https://avatar.iran.liara.run/username?username=Rajesh+Murmu` }}
-                                        className='w-full h-full rounded-full'
-                                    />
-                                </View>
+                                <Link href={`/profile`}>
+                                    <View className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center">
+                                        <Image
+                                            source={{ uri: user?.avatar || `https://avatar.iran.liara.run/username?username=${user?.name?.replace(" ", "+")}` }}
+                                            className='w-full h-full rounded-full'
+                                        />
+                                    </View>
+                                </Link>
                             </View>
                         </View>
 

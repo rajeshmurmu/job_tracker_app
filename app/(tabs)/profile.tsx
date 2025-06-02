@@ -1,10 +1,16 @@
+import { logoutUser } from '@/lib/auth-api-client'
+import { toast } from '@/lib/toast'
+import { useUserStore } from '@/store/store'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import React, { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { router } from 'expo-router'
+import React, { useEffect, useState } from 'react'
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function Profile() {
-    const [name, setName] = useState("Rajesh Murmu")
+    const { user, setUser, setRefreshToken, setAccessToken, setIsLoggedin, setOnboardingCompleted } = useUserStore()
+    const [name, setName] = useState(user?.name)
     const [loading, setLoading] = useState(false)
     const handleUpdateProfile = async () => {
 
@@ -18,16 +24,39 @@ export default function Profile() {
         }
     }
 
+    const { mutate, isPending, data, isError, error, isSuccess } = useMutation({
+        mutationFn: logoutUser,
+
+    })
+
     const handleLogout = () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
             { text: "Cancel", style: "cancel" },
             {
                 text: "Logout",
                 style: "destructive",
-                onPress: () => console.log("Logout Pressed"),
+                onPress: () => mutate(),
             },
         ])
     }
+
+
+    useEffect(() => {
+        if (isSuccess && data) {
+            toast(data?.message || "Logout successful")
+            setIsLoggedin(false)
+            setUser(null)
+            setRefreshToken(null)
+            setAccessToken(null)
+            setOnboardingCompleted(false)
+            router.replace("/(onboarding)")
+        }
+
+        if (isError && error) {
+            toast(error?.message || "Logout failed")
+        }
+    }, [data, error, isError, isSuccess, setAccessToken, setIsLoggedin, setOnboardingCompleted, setRefreshToken, setUser])
+
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
             <ScrollView className="flex-1">
@@ -38,7 +67,7 @@ export default function Profile() {
                     <View className="items-center mb-8">
                         <View className="relative w-24 h-24 bg-blue-600 rounded-full items-center justify-center mb-4">
                             <Image
-                                source={{ uri: `https://avatar.iran.liara.run/username?username=Rajesh+Murmu` }}
+                                source={{ uri: user?.avatar || `https://avatar.iran.liara.run/username?username=${user?.name}` }}
                                 className='w-full h-full rounded-full'
                             />
                             <View className='absolute bottom-0 right-0  bg-blue-100 rounded-full border-2 border-white'>
@@ -72,7 +101,7 @@ export default function Profile() {
                                 <Text className="text-gray-700 font-medium mb-1">Email</Text>
                                 <View className="flex-row items-center bg-gray-100 border border-gray-300 rounded-lg px-4 py-3">
                                     <FontAwesome name="envelope" color="#6b7280" size={20} />
-                                    <Text className="flex-1 ml-3 text-base text-gray-600">{"guest@example.com"}</Text>
+                                    <Text className="flex-1 ml-3 text-base text-gray-600" numberOfLines={1}>{user?.email}</Text>
                                 </View>
                                 <Text className="text-gray-500 text-sm mt-1">Email cannot be changed</Text>
                             </View>
@@ -93,7 +122,7 @@ export default function Profile() {
                     <View className="bg-white rounded-xl p-6 shadow-sm mb-6">
                         <Text className="text-lg font-bold text-gray-900 mb-4">Account</Text>
 
-                        <TouchableOpacity onPress={handleLogout} className="flex-row items-center py-3">
+                        <TouchableOpacity disabled={isPending} onPress={handleLogout} className="flex-row items-center py-3">
                             <FontAwesome name="sign-out" color="#ef4444" size={20} />
                             <Text className="text-red-500 text-base font-medium ml-3">Logout</Text>
                         </TouchableOpacity>

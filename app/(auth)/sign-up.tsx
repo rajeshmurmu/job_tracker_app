@@ -1,22 +1,45 @@
 import FormField from '@/components/FormField'
+import { registerUser } from '@/lib/auth-api-client'
+import { signUpSchema } from '@/lib/authSchema'
+import { toast } from '@/lib/toast'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from '@tanstack/react-query'
 import { router } from 'expo-router'
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-
-
-
 export default function SignUp() {
-    const [isSubmiting] = useState(false)
-    const { control, handleSubmit, formState: { errors, } } = useForm({
+    const { control, handleSubmit, formState: { errors, }, reset } = useForm({
         defaultValues: {
             name: "",
             email: "",
             password: "",
-        }
+        },
+        resolver: zodResolver(signUpSchema),
     })
+
+    const { mutate, isPending, isSuccess, isError, error, data } = useMutation({
+        mutationFn: registerUser,
+        onSuccess: () => reset(),
+    })
+
+    const onSubmit = (data: any) => {
+        mutate(data)
+    }
+
+    useEffect(() => {
+        if (isSuccess && data) {
+            toast(data?.message || "Signup successful")
+
+            router.replace("/sign-in")
+        }
+
+        if (isError && error) {
+            toast(error?.message || "Signup failed")
+        }
+    }, [data, error, isError, isSuccess])
 
     return (
         <SafeAreaView>
@@ -24,9 +47,9 @@ export default function SignUp() {
                 <View
                     className='flex-1 items-center justify-center h-screen'
                 >
-                    {isSubmiting && <ActivityIndicator size="large" color="#5664f5" />}
 
                     <View className='w-full flex-1 items-center justify-center'>
+                        {isPending && <ActivityIndicator size="large" color="#5664f5" />}
                         <Text className='text-3xl font-bold text-center my-4'>
                             Sign Up to Job Tracker
                         </Text>
@@ -34,23 +57,34 @@ export default function SignUp() {
                             <FormField
                                 control={control}
                                 title={"Name"}
+                                name={"name"}
                                 placeholder={"John Doe"}
                             />
+                            {errors.name && <Text className="text-red-500 text-sm mt-1">{errors.name?.message}</Text>}
 
                             <FormField
-                                control={control} title={"Email"}
+                                control={control}
+                                title={"Email"}
+                                name={"email"}
                                 placeholder={"name@example.com"}
                             />
 
+                            {errors.email && <Text className="text-red-500 text-sm mt-1">{errors.email?.message}</Text>}
+
+
 
                             <FormField
-                                control={control} title={"Password"}
+                                control={control}
+                                title={"Password"}
+                                name={"password"}
                                 placeholder={"********"}
                             />
+                            {errors.password && <Text className="text-red-500 text-sm mt-1">{errors.password?.message}</Text>}
+
                         </View>
 
                         <View className='mt-8 w-full'>
-                            <TouchableOpacity className='w-full h-16 bg-blue-600 flex-row items-center justify-center rounded-3xl'>
+                            <TouchableOpacity disabled={isPending} onPress={handleSubmit(onSubmit)} className='w-full py-3 bg-blue-600 flex-row items-center justify-center rounded-2xl'>
                                 <Text className='text-lg text-white font-bold'>Sign Up</Text>
                             </TouchableOpacity>
                         </View>

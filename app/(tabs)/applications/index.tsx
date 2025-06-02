@@ -28,7 +28,7 @@ export default function Applications() {
 
     useEffect(() => {
         filterJobs()
-    }, [searchQuery, statusFilter])
+    }, [filterJobs, searchQuery, statusFilter])
 
 
 
