@@ -1,41 +1,42 @@
 import JobCard from "@/components/JobCard"
-import { jobs } from "@/lib/applications"
+import { IApplication, useUserStore } from "@/store/store"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import { useCallback, useEffect, useState } from "react"
 import { FlatList, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
 export default function Applications() {
+    const { applications } = useUserStore()
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
 
-    const [filteredJobs, setfilteredJobs] = useState<[] | any>([])
+    const [filteredApplications, setfilteredApplications] = useState<IApplication[] | any>([])
 
 
-    const filterJobs = useCallback(() => {
-        const finalJobs = jobs.filter((job) => {
+    const filterApplications = useCallback(() => {
+        const finalApplications = applications?.filter((application) => {
             const matchesSearch =
-                job?.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                job?.position.toLowerCase().includes(searchQuery.toLowerCase())
+                application?.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                application?.position.toLowerCase().includes(searchQuery.toLowerCase())
 
-            const matchesStatus = statusFilter === "all" || job.status.toLowerCase() === statusFilter
+            const matchesStatus = statusFilter === "all" || application.status.toLowerCase() === statusFilter
             return matchesSearch && matchesStatus
         })
 
-        setfilteredJobs(finalJobs)
+        setfilteredApplications(finalApplications)
 
-    }, [searchQuery, statusFilter])
+    }, [applications, searchQuery, statusFilter])
 
     useEffect(() => {
-        filterJobs()
-    }, [filterJobs, searchQuery, statusFilter])
+        filterApplications()
+    }, [filterApplications, searchQuery, statusFilter])
 
 
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50 ">
             <View className="px-6 pt-6 pb-4">
-                <Text className="text-2xl font-bold text-gray-900 mb-6">All Jobs</Text>
+                <Text className="text-2xl font-bold text-gray-900 mb-6">All Job Applications</Text>
                 {/* Search Bar */}
                 <View className="flex-row items-center bg-white rounded-xl px-4 py-3 shadow-sm mb-4">
                     <FontAwesome name="search" color="#6b7280" size={20} />
@@ -67,9 +68,9 @@ export default function Applications() {
             </View>
 
             <FlatList
-                data={filteredJobs}
-                renderItem={({ item }) => <JobCard job={item} />}
-                keyExtractor={(item) => item.id.toString()}
+                data={filteredApplications}
+                renderItem={({ item }) => <JobCard application={item} />}
+                keyExtractor={(item) => item._id.toString()}
                 initialNumToRender={10}
                 contentContainerStyle={{ paddingHorizontal: 20 }}
                 ListEmptyComponent={() => (

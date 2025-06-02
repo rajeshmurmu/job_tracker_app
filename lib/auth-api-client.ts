@@ -14,7 +14,6 @@ const authApi = axios.create({
 export const registerUser = async (data: any) => {
   try {
     const response = await authApi.post("/register", data);
-
     if (response.data.success === false) {
       throw new Error(response.data.message);
     }

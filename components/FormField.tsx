@@ -36,7 +36,7 @@ export default function FormField({ title, name, placeholder, otherStyles, keybo
                                 keyboardType={keyboardType || "default"}
                                 secureTextEntry={title === "Password" && !showPassword}
                             />
-                            {title === 'Password' || name === 'password' && (
+                            {title === 'Password' && name === 'password' && (
                                 <TouchableOpacity
                                     onPress={() => setShowPassword(!showPassword)}
                                 >

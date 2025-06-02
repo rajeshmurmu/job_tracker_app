@@ -2,6 +2,7 @@ import FormField from '@/components/FormField'
 import { registerUser } from '@/lib/auth-api-client'
 import { signUpSchema } from '@/lib/authSchema'
 import { toast } from '@/lib/toast'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from '@tanstack/react-query'
 import { router } from 'expo-router'
@@ -26,13 +27,12 @@ export default function SignUp() {
     })
 
     const onSubmit = (data: any) => {
-        mutate(data)
+        mutate({ ...data, confirmPassword: data.password })
     }
 
     useEffect(() => {
         if (isSuccess && data) {
             toast(data?.message || "Signup successful")
-
             router.replace("/sign-in")
         }
 
@@ -50,6 +50,9 @@ export default function SignUp() {
 
                     <View className='w-full flex-1 items-center justify-center'>
                         {isPending && <ActivityIndicator size="large" color="#5664f5" />}
+                        <View>
+                            <FontAwesome name="briefcase" color="#1e40af" size={100} />
+                        </View>
                         <Text className='text-3xl font-bold text-center my-4'>
                             Sign Up to Job Tracker
                         </Text>
@@ -66,6 +69,7 @@ export default function SignUp() {
                                 control={control}
                                 title={"Email"}
                                 name={"email"}
+                                keyboardType='email-address'
                                 placeholder={"name@example.com"}
                             />
 

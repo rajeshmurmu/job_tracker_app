@@ -3,6 +3,7 @@ import { loginUser } from '@/lib/auth-api-client'
 import { signInSchema } from '@/lib/authSchema'
 import { toast } from '@/lib/toast'
 import { useUserStore } from '@/store/store'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { router } from 'expo-router'
@@ -55,6 +56,9 @@ export default function SignIn() {
 
                     <View className='w-full flex-1 items-center justify-center'>
                         {isPending && <ActivityIndicator size="large" color="#5664f5" />}
+                        <View>
+                            <FontAwesome name="briefcase" color="#1e40af" size={100} />
+                        </View>
                         <Text className='text-3xl font-bold text-center my-4'>
                             Sign In to Job Tracker
                         </Text>
@@ -63,6 +67,7 @@ export default function SignIn() {
                             <FormField
                                 control={control}
                                 title={"Email"}
+                                keyboardType='email-address'
                                 name={"email"}
                                 placeholder={"name@example.com"}
                             />

@@ -27,6 +27,7 @@ export default function TabLayout() {
                 name="applications"
                 options={{
                     title: 'Applications',
+                    popToTopOnBlur: true,
                     tabBarIcon: ({ color }) =>
                         <Entypo name="briefcase" size={24} color={color} />
                 }}

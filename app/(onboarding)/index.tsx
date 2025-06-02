@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            router.push("/sign-up")
+            router.push("/sign-in")
             setOnboardingCompleted(true)
           }}
           className="bg-blue-600 w-full py-4 rounded-xl shadow-md">

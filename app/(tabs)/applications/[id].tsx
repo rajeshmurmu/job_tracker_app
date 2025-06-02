@@ -1,12 +1,19 @@
-import { jobs } from "@/lib/applications"
+import { fetchApplication } from "@/lib/application-api-client"
+import { toast } from "@/lib/toast"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
+import { useQuery } from "@tanstack/react-query"
 import { useLocalSearchParams } from "expo-router"
-import { useEffect, useState } from "react"
-import { Alert, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native"
+import { useEffect } from "react"
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native"
 
 export default function ApplicationDetail() {
     const { id } = useLocalSearchParams()
-    const [job, setJob] = useState<typeof jobs | any>()
+    const { data: application, isError, isPending, isLoading, isFetching, error } = useQuery({
+        queryKey: ["application", id],
+        queryFn: async () => await fetchApplication(id),
+        select: (data) => data?.application,
+    })
+
     const handleDelete = () => {
         Alert.alert("Delete Job", "Are you sure you want to delete this job application?", [
             { text: "Cancel", style: "cancel" },
@@ -34,9 +41,23 @@ export default function ApplicationDetail() {
     }
 
     useEffect(() => {
-        const job = jobs.find((job) => job.id === Number(id))
-        setJob(job)
-    }, [id])
+        if (isError || error) {
+            toast(error?.message || "Failed to fetch application details")
+        }
+    }, [error, isError])
+
+
+    if (isLoading || isFetching || isPending) {
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <ScrollView className="flex-1">
+                    <View className="px-6 pt-6 justify-center items-center min-h-[80vh]">
+                        <ActivityIndicator size="large" color="#1e40af" />
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        )
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
@@ -48,12 +69,12 @@ export default function ApplicationDetail() {
                             <View className="w-16 h-16 bg-blue-100 rounded-full items-center justify-center mb-3">
                                 <FontAwesome name="briefcase" color="#1e40af" size={32} />
                             </View>
-                            <Text className="text-2xl font-bold text-gray-900 text-center">{job?.position}</Text>
-                            <Text className="text-lg text-gray-600 text-center">{job?.company}</Text>
+                            <Text className="text-2xl font-bold text-gray-900 text-center">{application?.position}</Text>
+                            <Text className="text-lg text-gray-600 text-center">{application?.company_name}</Text>
                         </View>
 
-                        <View className={`px-4 py-2 rounded-full self-center ${getStatusColor(job?.status)}`}>
-                            <Text className={`font-semiboldn ${getStatusColor(job?.status)}`}>{job?.status.charAt(0).toUpperCase() + job?.status.slice(1)}</Text>
+                        <View className={`px-4 py-2 rounded-full self-center ${getStatusColor(application?.status)}`}>
+                            <Text className={`font-semibold ${getStatusColor(application?.status)}`}>{application?.status.charAt(0).toUpperCase() + application?.status.slice(1)}</Text>
                         </View>
                     </View>
 
@@ -66,7 +87,7 @@ export default function ApplicationDetail() {
                                 <FontAwesome name="map-marker" color="#6b7280" size={20} />
                                 <View className="ml-3">
                                     <Text className="text-sm text-gray-500">Location</Text>
-                                    <Text className="text-base text-gray-900">{job?.location}</Text>
+                                    <Text className="text-base text-gray-900">{application?.location}</Text>
                                 </View>
                             </View>
 
@@ -74,7 +95,7 @@ export default function ApplicationDetail() {
                                 <FontAwesome name="calendar" color="#6b7280" size={20} />
                                 <View className="ml-3">
                                     <Text className="text-sm text-gray-500">Applied Date</Text>
-                                    <Text className="text-base text-gray-900">{job?.appliedDate}</Text>
+                                    <Text className="text-base text-gray-900">{new Date(application?.applied_date).toLocaleString("en-FR").split(",")[0]}</Text>
                                 </View>
                             </View>
 
@@ -83,7 +104,7 @@ export default function ApplicationDetail() {
                                 <View className="ml-3">
                                     <Text className="text-sm text-gray-500">Status</Text>
                                     <Text className="text-base text-gray-900">
-                                        {job?.status.charAt(0).toUpperCase() + job?.status.slice(1)}
+                                        {application?.status.charAt(0).toUpperCase() + application?.status.slice(1)}
                                     </Text>
                                 </View>
                             </View>

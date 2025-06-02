@@ -1,20 +1,25 @@
 import StatCard from "@/components/StatCard";
-import { jobs } from "@/lib/applications";
+import { fetchApplications } from "@/lib/application-api-client";
+import { toast } from "@/lib/toast";
 import { useUserStore } from "@/store/store";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import { useState } from "react";
+import { useEffect } from "react";
 import { FlatList, Image, RefreshControl, SafeAreaView, Text, View } from "react-native";
 // import { SafeAreaView } from "react-native-safe-area-context"
 
 
 export default function Home() {
-    const { user } = useUserStore()
-    const [refreshing, setRefreshing] = useState(false);
-    const onRefresh = async () => {
-        setRefreshing(true)
-        setRefreshing(false)
-    }
+    const { user, setApplications } = useUserStore()
+    const { data: applications, isPending, isError, error, isSuccess, refetch } = useQuery({
+        queryKey: ["applications"],
+        queryFn: fetchApplications,
+        select: (data) => data?.applications,
+        placeholderData: keepPreviousData
+    })
+
+
 
     const getGreeting = () => {
         const hour = new Date().getHours()
@@ -22,6 +27,18 @@ export default function Home() {
         if (hour < 18) return "Good Afternoon"
         return "Good Evening"
     }
+
+    useEffect(() => {
+
+        if (isSuccess && applications) {
+            setApplications(applications)
+            toast("Applications fetched successfully")
+        }
+
+        if (isError && error) {
+            toast(error?.message || "Failed to fetch applications")
+        }
+    }, [applications, error, isError, isSuccess, setApplications])
 
 
 
@@ -66,8 +83,8 @@ export default function Home() {
                         </View>
                     </>
                 )}
-                data={jobs.slice(0, 10)}
-                keyExtractor={(item) => item.id.toString()}
+                data={applications?.length > 5 ? applications.slice(0, 5) : applications}
+                keyExtractor={(item) => item?._id.toString()}
                 renderItem={({ item }) => (
                     <View className="px-6 my-1">
                         <View className="flex-row items-center py-4 border-b border-gray-100 last:border-b-0 px-2 bg-white rounded-lg">
@@ -76,7 +93,7 @@ export default function Home() {
                             </View>
                             <View className="flex-1">
                                 <Text className="font-semibold text-gray-900">{item.position}</Text>
-                                <Text className="text-gray-600 text-sm">{item.company}</Text>
+                                <Text className="text-gray-600 text-sm">{item.company_name}</Text>
                             </View>
                             <View
                                 className={`px-2 py-1 rounded-full ${item?.status.toLowerCase() === "applied"
@@ -105,7 +122,7 @@ export default function Home() {
                     </View>
                 )}
                 contentContainerClassName="pb-16"
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                refreshControl={<RefreshControl refreshing={isPending} onRefresh={() => refetch()} />}
                 ListEmptyComponent={() => (
                     <Text className="text-gray-500 text-center py-8">
                         No jobs tracked yet. Add your first job application!
