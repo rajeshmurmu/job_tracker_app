@@ -181,22 +181,24 @@ export default function Add() {
                                         presentationStyle="overFullScreen"
 
                                     >
-                                        <View className="flex-1  px-4 items-center justify-center">
-                                            <View className="w-full bg-white border border-gray-300 rounded-lg ">
-                                                {statusOptions.map((option) => (
-                                                    <TouchableOpacity
-                                                        key={option.value}
-                                                        onPress={() => {
-                                                            setValue("status", option.value as any)
-                                                            setShowStatusPicker(false)
-                                                        }}
-                                                        className="px-4 py-3 border-b border-gray-100 last:border-b-0"
-                                                    >
-                                                        <Text className="text-base text-gray-900">{option.label}</Text>
-                                                    </TouchableOpacity>
-                                                ))}
+                                        <TouchableOpacity onPress={() => setShowStatusPicker(false)} className="flex-1">
+                                            <View className="flex-1  px-4 items-center justify-center">
+                                                <View className="w-full bg-blue-100 border border-gray-300 rounded-lg ">
+                                                    {statusOptions.map((option) => (
+                                                        <TouchableOpacity
+                                                            key={option.value}
+                                                            onPress={() => {
+                                                                setValue("status", option.value as any)
+                                                                setShowStatusPicker(false)
+                                                            }}
+                                                            className="px-4 py-3 border-b border-gray-100 last:border-b-0"
+                                                        >
+                                                            <Text className="text-base text-gray-900">{option.label}</Text>
+                                                        </TouchableOpacity>
+                                                    ))}
+                                                </View>
                                             </View>
-                                        </View>
+                                        </TouchableOpacity>
                                     </Modal>
 
                                 )}
@@ -227,25 +229,28 @@ export default function Add() {
                                             visible={showDatePicker}
                                             onRequestClose={() => setShowDatePicker(false)}
                                         >
-                                            <View className="flex-1 justify-center items-center px-4">
-                                                <DatePicker
-                                                    mode="single"
-                                                    date={getValues("applied_date")}
-                                                    onChange={(dateObject) => {
-                                                        setValue("applied_date", dateObject.date as Date)
-                                                        setShowDatePicker(false)
-                                                    }}
-                                                    className="bg-gray-300 p-4 rounded-lg"
-                                                    classNames={{
-                                                        ...defaultClassNames,
-                                                        selected: "bg-blue-500 text-white rounded-lg", selected_label: "text-white",
-                                                        button_next: "bg-blue-500 text-white rounded-lg px-4 py-2",
-                                                        button_prev: "bg-blue-500 text-white rounded-lg px-4 py-2",
+                                            <TouchableOpacity onPress={() => setShowDatePicker(false)} className="flex-1">
+                                                <View className="flex-1 justify-center items-center px-4">
+                                                    <DatePicker
+                                                        mode="single"
+                                                        date={getValues("applied_date")}
+                                                        onChange={(dateObject) => {
+                                                            setValue("applied_date", dateObject.date as Date)
+                                                            setShowDatePicker(false)
+                                                        }}
+                                                        className="bg-blue-100 p-4 rounded-lg"
+                                                        classNames={{
+                                                            ...defaultClassNames,
+                                                            selected: "bg-blue-500 text-white rounded-lg", selected_label: "text-white",
+                                                            button_next: "bg-blue-500 text-white rounded-lg px-4 py-2",
+                                                            button_prev: "bg-blue-500 text-white rounded-lg px-4 py-2",
 
-                                                    }}
+                                                        }}
 
-                                                />
-                                            </View>
+                                                    />
+                                                </View>
+                                            </TouchableOpacity>
+
                                         </Modal>
                                     )
                                 }
