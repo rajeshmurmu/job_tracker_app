@@ -1,8 +1,9 @@
-import { fetchApplication } from "@/lib/application-api-client"
+import { queryClient } from "@/app/_layout"
+import { deleteApplication, fetchApplication } from "@/lib/application-api-client"
 import { toast } from "@/lib/toast"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
-import { useQuery } from "@tanstack/react-query"
-import { useLocalSearchParams } from "expo-router"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { router, useLocalSearchParams } from "expo-router"
 import { useEffect } from "react"
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native"
 
@@ -14,13 +15,17 @@ export default function ApplicationDetail() {
         select: (data) => data?.application,
     })
 
+    const { mutate, data: deletedApplication, isPending: isDeletePending, isError: isDeleteError, isSuccess: isDeleteSuccess, error: deleteError } = useMutation({
+        mutationFn: async () => await deleteApplication(id as string),
+    })
+
     const handleDelete = () => {
         Alert.alert("Delete Job", "Are you sure you want to delete this job application?", [
             { text: "Cancel", style: "cancel" },
             {
                 text: "Delete",
                 style: "destructive",
-
+                onPress: () => mutate(),
             },
         ])
     }
@@ -45,6 +50,20 @@ export default function ApplicationDetail() {
             toast(error?.message || "Failed to fetch application details")
         }
     }, [error, isError])
+
+    useEffect(() => {
+
+        if (isDeleteSuccess && deletedApplication) {
+            toast("Application deleted successfully")
+            // queryClient.invalidateQueries({ queryKey: ["applications"] })
+            queryClient.refetchQueries({ queryKey: ["applications"] })
+            router.back()
+        }
+
+        if (isDeleteError || deleteError) {
+            toast(deleteError?.message || "Failed to delete application")
+        }
+    }, [deleteError, deletedApplication, isDeleteError, isDeleteSuccess])
 
 
     if (isLoading || isFetching || isPending) {
@@ -113,17 +132,21 @@ export default function ApplicationDetail() {
 
                     {/* Action Buttons */}
                     <View className="my-3">
-                        <TouchableOpacity className="bg-blue-600 py-4 rounded-xl shadow-md flex-row items-center justify-center my-2">
+                        <TouchableOpacity
+                            disabled={isLoading || isDeletePending}
+                            onPress={() => router.push(`/applications/${application?._id}/edit`)}
+                            className="bg-blue-600 py-3 rounded-xl shadow-md flex-row items-center justify-center my-2">
                             <FontAwesome name="pencil" color="#ffffff" size={20} />
-                            <Text className="text-white text-lg font-semibold ml-2">Edit Job</Text>
+                            <Text className="text-white text-lg font-semibold ml-2">Edit Application</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
+                            disabled={isLoading || isDeletePending}
                             onPress={handleDelete}
-                            className="bg-red-600 py-4 rounded-xl shadow-md flex-row items-center justify-center my-2"
+                            className="bg-red-600 py-3 rounded-xl shadow-md flex-row items-center justify-center my-2"
                         >
                             <FontAwesome name="trash" color="#ffffff" size={20} />
-                            <Text className="text-white text-lg font-semibold ml-2">Delete Job</Text>
+                            <Text className="text-white text-lg font-semibold ml-2">Delete Application</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

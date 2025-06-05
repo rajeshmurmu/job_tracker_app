@@ -27,7 +27,7 @@ export default function FormField({ title, name, placeholder, otherStyles, keybo
                     render={({ field: { onChange, onBlur, value } }) => (
                         <>
                             <TextInput
-                                className='flex-1 w-full text-base font-semibold focus:outline-none'
+                                className='flex-1 w-full text-base font-semibold focus:outline-none text-slate-900'
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}

@@ -8,7 +8,8 @@ import { useMutation } from '@tanstack/react-query'
 import { router } from 'expo-router'
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function SignUp() {
@@ -43,7 +44,7 @@ export default function SignUp() {
 
     return (
         <SafeAreaView>
-            <ScrollView className='bg-white px-4'>
+            <KeyboardAwareScrollView className='bg-white px-4' enableOnAndroid={true} scrollEnabled={true} >
                 <View
                     className='flex-1 items-center justify-center h-screen'
                 >
@@ -102,7 +103,7 @@ export default function SignUp() {
                         </View>
                     </View>
                 </View>
-            </ScrollView>
+            </KeyboardAwareScrollView>
         </SafeAreaView>
     )
 }

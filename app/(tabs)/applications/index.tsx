@@ -17,7 +17,8 @@ export default function Applications() {
         const finalApplications = applications?.filter((application) => {
             const matchesSearch =
                 application?.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                application?.position.toLowerCase().includes(searchQuery.toLowerCase())
+                application?.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                application?.location.toLowerCase().includes(searchQuery.toLowerCase())
 
             const matchesStatus = statusFilter === "all" || application.status.toLowerCase() === statusFilter
             return matchesSearch && matchesStatus
@@ -38,10 +39,10 @@ export default function Applications() {
             <View className="px-6 pt-6 pb-4">
                 <Text className="text-2xl font-bold text-gray-900 mb-6">All Job Applications</Text>
                 {/* Search Bar */}
-                <View className="flex-row items-center bg-white rounded-xl px-4 py-3 shadow-sm mb-4">
+                <View className="flex-row items-center bg-white rounded-xl px-4 py-2 shadow-sm mb-4">
                     <FontAwesome name="search" color="#6b7280" size={20} />
                     <TextInput
-                        className="flex-1 ml-3 text-base"
+                        className="flex-1 ml-3 text-base placeholder:text-gray-400"
                         placeholder="Search jobs..."
                         value={searchQuery}
                         onChangeText={setSearchQuery}

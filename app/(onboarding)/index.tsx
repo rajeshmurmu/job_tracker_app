@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function OnboardingScreen() {
   const { onboardingCompleted, isLoggedin, setOnboardingCompleted } = useUserStore()
-
+  // console.log({ onboardingCompleted, isLoggedin })
   if (onboardingCompleted && isLoggedin) {
     return <Redirect href="/(tabs)" />
   }

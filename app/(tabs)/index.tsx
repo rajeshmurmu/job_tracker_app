@@ -1,17 +1,21 @@
 import StatCard from "@/components/StatCard";
 import { fetchApplications } from "@/lib/application-api-client";
 import { toast } from "@/lib/toast";
+import useApplication from "@/lib/useApplication";
 import { useUserStore } from "@/store/store";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 import { useEffect } from "react";
 import { FlatList, Image, RefreshControl, SafeAreaView, Text, View } from "react-native";
 // import { SafeAreaView } from "react-native-safe-area-context"
 
 
 export default function Home() {
-    const { user, setApplications } = useUserStore()
+    const { user, setApplications, isLoggedin, onboardingCompleted } = useUserStore()
+
+    const { appliedCount, interviewCount, offerCount, rejectedCount } = useApplication()
+
     const { data: applications, isPending, isError, error, isSuccess, refetch } = useQuery({
         queryKey: ["applications"],
         queryFn: fetchApplications,
@@ -32,7 +36,7 @@ export default function Home() {
 
         if (isSuccess && applications) {
             setApplications(applications)
-            toast("Applications fetched successfully")
+            // toast("Applications fetched successfully")
         }
 
         if (isError && error) {
@@ -41,6 +45,7 @@ export default function Home() {
     }, [applications, error, isError, isSuccess, setApplications])
 
 
+    if (!isLoggedin || !onboardingCompleted) return <Redirect href="/(onboarding)" />
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
@@ -67,12 +72,12 @@ export default function Home() {
                         {/* Stats Cards */}
                         <View className="px-6 -mt-6 mb-6">
                             <View className="flex-row mb-4">
-                                <StatCard title="Applied" value={6} icon={"briefcase"} color="bg-blue-500" />
-                                <StatCard title="Interviews" value={6} icon={"calendar"} color="bg-orange-500" />
+                                <StatCard title="Applied" value={appliedCount} icon={"briefcase"} color="bg-blue-500" />
+                                <StatCard title="Interviews" value={interviewCount} icon={"calendar"} color="bg-orange-500" />
                             </View>
                             <View className="flex-row">
-                                <StatCard title="Offers" value={6} icon={"check"} color="bg-green-500" />
-                                <StatCard title="Rejected" value={0} icon={"bug"} color="bg-red-500" />
+                                <StatCard title="Offers" value={offerCount} icon={"check"} color="bg-green-500" />
+                                <StatCard title="Rejected" value={rejectedCount} icon={"bug"} color="bg-red-500" />
                             </View>
                         </View>
 
@@ -83,11 +88,12 @@ export default function Home() {
                         </View>
                     </>
                 )}
+
                 data={applications?.length > 5 ? applications.slice(0, 5) : applications}
                 keyExtractor={(item) => item?._id.toString()}
                 renderItem={({ item }) => (
                     <View className="px-6 my-1">
-                        <View className="flex-row items-center py-4 border-b border-gray-100 last:border-b-0 px-2 bg-white rounded-lg">
+                        <View className="flex-row items-center py-4 border-b border-gray-100 last:border-b-0 px-2 bg-white rounded-2xl">
                             <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-3">
                                 <FontAwesome name="briefcase" color="#1e40af" size={20} />
                             </View>

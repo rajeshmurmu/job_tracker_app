@@ -1,16 +1,17 @@
-import { createApplication } from "@/lib/application-api-client"
+import { queryClient } from "@/app/_layout"
+import { fetchApplication, updateApplication } from "@/lib/application-api-client"
 import { applicationSchema } from "@/lib/applicationSchema"
 import { toast } from "@/lib/toast"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { router, useLocalSearchParams } from "expo-router"
 import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ActivityIndicator, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { SafeAreaView } from "react-native-safe-area-context"
 import DatePicker, { useDefaultClassNames } from "react-native-ui-datepicker"
-import { queryClient } from "../_layout"
 
 interface JobFormData {
     company_name: string
@@ -23,10 +24,17 @@ interface JobFormData {
     notes?: string
 }
 
-export default function Add() {
+export default function EditApplication() {
+    const { id } = useLocalSearchParams()
     const defaultClassNames = useDefaultClassNames()
     const [showStatusPicker, setShowStatusPicker] = useState(false)
     const [showDatePicker, setShowDatePicker] = useState(false)
+
+    const { data: application, isError, isPending, isLoading, isFetching, error, isSuccess } = useQuery({
+        queryKey: ["application", id],
+        queryFn: async () => await fetchApplication(id),
+        select: (data) => data?.application,
+    })
 
 
     const {
@@ -40,16 +48,13 @@ export default function Add() {
         defaultValues: {
             status: "Applied",
             applied_date: new Date(),
-            salary: "0",
-            job_url: "",
-            notes: "",
         },
         resolver: zodResolver(applicationSchema),
     })
 
 
-    const { mutate, isPending, error, data, isSuccess, isError } = useMutation({
-        mutationFn: createApplication,
+    const { mutate, isPending: isUpdating, error: updateError, data: updateData, isSuccess: isUpdateSuccess, isError: isUpdateError } = useMutation({
+        mutationFn: updateApplication,
     })
 
     const statusOptions = [
@@ -60,27 +65,58 @@ export default function Add() {
     ]
 
     const onSubmit = async (data: JobFormData) => {
-        mutate(data)
+        mutate({
+            ...data,
+            applied_date: new Date(data.applied_date).toISOString().split("T")[0],
+            application_id: id,
+        })
     }
 
     useEffect(() => {
-        if (isSuccess && data) {
-            toast(data?.message || "Application added successfully")
+
+        if (isSuccess && application) {
             reset({
-                status: "Applied",
-                applied_date: new Date(),
+                company_name: application.company_name,
+                position: application.position,
+                location: application.location,
+                status: application.status,
+                applied_date: new Date(application.applied_date),
+                salary: application.salary,
+                job_url: application.job_url,
+                notes: application.notes
             })
+        }
+
+        if (isError || error) {
+            toast(error?.message || "Failed to fetch application details")
+        }
+    }, [application, error, isError, isSuccess, reset])
+
+    useEffect(() => {
+        if (isUpdateSuccess && updateData) {
+            toast(updateData?.message || "Application updated successfully")
             // queryClient.invalidateQueries({ queryKey: ["applications"] })
             queryClient.refetchQueries({ queryKey: ["applications"] })
+            router.replace("/(tabs)/applications")
 
         }
 
-        if (isError && error) {
-            toast(error?.message || "Something went wrong")
+        if (isUpdateError && updateError) {
+            toast(updateError?.message || "Something went wrong")
         }
-    }, [isSuccess, data, isError, error, reset])
+    }, [isError, error, reset, isUpdateSuccess, updateData, isUpdateError, updateError])
 
-
+    if (isLoading || isFetching || isPending) {
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <ScrollView className="flex-1">
+                    <View className="px-6 pt-6 justify-center items-center min-h-[80vh]">
+                        <ActivityIndicator size="large" color="#1e40af" />
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        )
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-gray-50">
@@ -214,7 +250,7 @@ export default function Add() {
                                         <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                                             <View className="bg-white border border-gray-300 rounded-lg px-4 py-3 flex-row items-center">
                                                 <FontAwesome name="calendar" color="#6b7280" size={20} />
-                                                <Text className="text-base text-gray-900 ml-3">{value.toLocaleDateString()}</Text>
+                                                <Text className="text-base text-gray-900 ml-3">{new Date(value).toLocaleString("en-FR").split(",")[0]}</Text>
                                             </View>
                                         </TouchableOpacity>
                                     )}
@@ -328,11 +364,11 @@ export default function Add() {
 
                         <TouchableOpacity
                             onPress={handleSubmit(onSubmit)}
-                            disabled={isPending}
-                            className="bg-blue-600 py-4 rounded-xl shadow-md mt-8 mb-6"
+                            disabled={isPending || isUpdating}
+                            className="bg-blue-600 py-3 rounded-xl shadow-md mt-8 mb-6"
                         >
                             <Text className="text-white text-lg font-semibold text-center">
-                                {isPending ? "Adding Application..." : "Add Application"}
+                                {isPending ? "Updating Application..." : "Update Application"}
                             </Text>
                         </TouchableOpacity>
                     </View>

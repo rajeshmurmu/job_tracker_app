@@ -1,15 +1,8 @@
 import _config from "@/config/appConfig";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import getAxiosInstance from "./axiosInstance";
 
-axios.defaults.withCredentials = true;
-
-const authApi = axios.create({
-  baseURL: `${_config.server_base_url}/api/v1/auth`,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+const authApi: any = getAxiosInstance(`${_config.server_base_url}/api/v1/auth`);
 
 export const registerUser = async (data: any) => {
   try {
@@ -40,6 +33,7 @@ export const loginUser = async (data: any) => {
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
+      console.log(JSON.stringify(error?.response?.data));
       console.log("Error login user:", error);
       throw new Error(error?.response?.data?.message || "Failed to login user");
     }
