@@ -18,7 +18,10 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.rajeshmurmu.JobTracker"
+      "package": "com.rajeshmurmu.JobTracker",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -49,7 +52,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "29d4c018-27f4-45f4-9767-4a03c8392ef3"
+        "projectId": "ad231f84-97e6-403b-bcb6-57b64ce761dc"
       }
     }
   }
